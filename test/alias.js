@@ -47,6 +47,14 @@ describe("alias", function() {
 				dir: {
 					"": true
 				}
+			},
+			array: {
+				"": true,
+				index: buf
+			},
+			failover: {
+				"": true,
+				index: buf
 			}
 		});
 		resolver = ResolverFactory.createResolver({
@@ -56,7 +64,9 @@ describe("alias", function() {
 				c$: "/a/index",
 				recursive: "recursive/dir",
 				"/d/dir": "/c/dir",
-				"/d/index.js": "/c/index"
+				"/d/index.js": "/c/index",
+				array: ["/noop/index", "/a/index"].join(":"),
+				failover: ["/noop/index", "/failover/index"].join(":")
 			},
 			modules: "/",
 			useSyncFileSystemCalls: true,
@@ -111,5 +121,11 @@ describe("alias", function() {
 	it("should resolve a file aliased file", function() {
 		resolver.resolveSync({}, "/", "d").should.be.eql("/c/index");
 		resolver.resolveSync({}, "/", "d/dir/index").should.be.eql("/c/dir/index");
+	});
+	it("should resolve an array of aliases", function() {
+		resolver.resolveSync({}, "/", "array").should.be.eql("/a/index");
+	});
+	it("should resolve failover", function() {
+		resolver.resolveSync({}, "/", "failover").should.be.eql("/failover/index");
 	});
 });
